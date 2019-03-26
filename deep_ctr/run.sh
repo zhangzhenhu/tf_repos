@@ -2,7 +2,7 @@
 
 #0 config
 model_dir=/locate_data/zzh/models/
-data_dir=/locate_data/public_data/criteo
+data_dir=/locate_data/public_data/
 
 #1 feature pipline
 python Feature_pipeline/get_criteo_feature.py --input_dir=${data_dir}/criteo/ --output_dir=${data_dir}/criteo/ --cutoff=200

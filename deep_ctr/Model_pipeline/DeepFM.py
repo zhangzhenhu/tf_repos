@@ -111,8 +111,8 @@ def model_fn(features, labels, mode, params):
     learning_rate = params["learning_rate"]
     # batch_norm_decay = params["batch_norm_decay"]
     # optimizer = params["optimizer"]
-    layers = map(int, params["deep_layers"].split(','))
-    dropout = map(float, params["dropout"].split(','))
+    layers = list(map(int, params["deep_layers"].split(',')))
+    dropout = list(map(float, params["dropout"].split(',')))
 
     # ------bulid weights------
     FM_B = tf.get_variable(name='fm_bias', shape=[1], initializer=tf.constant_initializer(0.0))
