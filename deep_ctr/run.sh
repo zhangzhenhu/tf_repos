@@ -6,6 +6,8 @@ data_dir=/locate_data/public_data/criteo_test
 batch_size=2048
 num_epochs=1
 max_steps=1000
+task_type=train
+
 case $1 in
     fm)
         model="FM"
@@ -15,13 +17,21 @@ case $1 in
     ;;
 esac
 
+if [ -n "$2" ];then
+
+task_type=$2
+#echo ${task_type}
+fi
+
+#exit
+
 #1 feature pipline
 #python Feature_pipeline/get_criteo_feature.py --input_dir=${data_dir}/ --output_dir=${data_dir}/ --cutoff=200
 
 #2 model pipline
 #python Model_pipeline/wide_n_deep.py --model_type=wide --num_epochs=1 --batch_size=128 --deep_layers=256,128,64 --log_steps=1000 --num_threads=8 --model_dir=${model_dir}/lr/ --data_dir=${data_dir}
 #python Model_pipeline/wide_n_deep.py --model_type=wide_n_deep --num_epochs=1 --batch_size=128 --deep_layers=256,128,64 --log_steps=1000 --num_threads=8 --model_dir=${model_dir}/wide_n_deep/ --data_dir=${data_dir}
-python Model_pipeline/${model}.py --learning_rate=0.0001 \
+python3 Model_pipeline/${model}.py --learning_rate=0.0001 \
     --max_steps=${max_steps} \
     --optimizer=Adam \
     --num_epochs=1 --embedding_size=32 \
@@ -32,7 +42,9 @@ python Model_pipeline/${model}.py --learning_rate=0.0001 \
     --dropout=0.8,0.8 \
     --l2_reg=0.0001 \
     --log_steps=1000 \
-    --num_threads=8 --model_dir=${model_dir}/${model}/ --data_dir=${data_dir}
+    --num_threads=8 \
+    task_type=${task_type} \
+    --model_dir=${model_dir}/${model}/ --data_dir=${data_dir}
 
 #python Model_pipeline/FM.py --learning_rate=0.0001 --optimizer=Adam --num_epochs=1 --embedding_size=32 --batch_size=256 --field_size=39 --feature_size=117581 --deep_layers=256,128 --dropout=0.8,0.8 --l2_reg=0.0001 --log_steps=1000 --num_threads=8 --model_dir=${model_dir}/FM/ --data_dir=${data_dir}
 #python PNN.py --model_type=FNN --learning_rate=0.0001 --optimizer=Adam --num_epochs=1 --embedding_size=32 --batch_size=2048 --field_size=39 --feature_size=117581 --deep_layers=256,128 --dropout=0.8,0.8 --l2_reg=0.0001 --log_steps=1000 --num_threads=8 --model_dir=${model_dir}/FNN/ --data_dir=${data_dir}
