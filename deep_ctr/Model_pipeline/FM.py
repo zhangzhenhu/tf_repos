@@ -174,6 +174,7 @@ def model_fn(features, labels, mode, params):
         "auc": tf.metrics.auc(labels, pred),
         "rmse": tf.metrics.root_mean_squared_error(labels, pred),
         'acc': tf.metrics.accuracy(labels, tf.to_int32(pred > 0.5)),
+        'precision': tf.metrics.precision(labels, tf.to_int32(pred > 0.5)),
 
     }
     if mode == tf.estimator.ModeKeys.EVAL:
