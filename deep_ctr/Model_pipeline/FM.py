@@ -44,6 +44,7 @@ tf.app.flags.DEFINE_integer("feature_size", 117581, "Number of features")
 tf.app.flags.DEFINE_integer("field_size", 39, "Number of fields")
 tf.app.flags.DEFINE_integer("embedding_size", 32, "Embedding size")
 tf.app.flags.DEFINE_integer("num_epochs", 1, "Number of epochs")
+tf.app.flags.DEFINE_integer("max_steps", 1000, "max_steps")
 tf.app.flags.DEFINE_integer("batch_size", 256, "Number of batch size")
 tf.app.flags.DEFINE_integer("log_steps", 1000, "save summary every steps")
 tf.app.flags.DEFINE_float("learning_rate", 0.0005, "learning rate")
@@ -337,7 +338,8 @@ def main(_):
     if FLAGS.task_type == 'train':
         train_spec = tf.estimator.TrainSpec(
             input_fn=lambda: input_fn(tr_files, num_epochs=FLAGS.num_epochs, batch_size=FLAGS.batch_size),
-            # hooks=hooks
+            # hooks=hooks,
+            max_steps=FLAGS.max_steps,
         )
         eval_spec = tf.estimator.EvalSpec(
             input_fn=lambda: input_fn(va_files, num_epochs=1, batch_size=FLAGS.batch_size), steps=None,
