@@ -359,12 +359,12 @@ def main(_):
         log_step_count_steps=FLAGS.log_steps, save_summary_steps=FLAGS.log_steps)
     DeepFM = tf.estimator.Estimator(model_fn=model_fn, model_dir=FLAGS.model_dir, params=model_params, config=config)
 
-    hooks = [tf_debug.TensorBoardDebugHook("zhangzhenhudeMacBook-Pro.local:6064")]
+    # hooks = [tf_debug.TensorBoardDebugHook("zhangzhenhudeMacBook-Pro.local:6064")]
 
     if FLAGS.task_type == 'train':
         train_spec = tf.estimator.TrainSpec(
             input_fn=lambda: input_fn(tr_files, num_epochs=FLAGS.num_epochs, batch_size=FLAGS.batch_size),
-            hooks=hooks
+            # hooks=hooks
         )
         eval_spec = tf.estimator.EvalSpec(
             input_fn=lambda: input_fn(va_files, num_epochs=1, batch_size=FLAGS.batch_size), steps=None,

@@ -207,13 +207,13 @@ def main(_):
         # y_bias = FM_B * tf.ones_like(labels, dtype=tf.float32)  # None * 1  warning;这里不能用label，否则调用predict/export函数会出错，train/evaluate正常；初步判断estimator做了优化，用不到label时不传
         # y_bias = FM_B * tf.ones_like(y_d, dtype=tf.float32)  # None * 1
         y = FM_B + y_w + y_v  # + y_d
-        pred = tf.sigmoid(y)
-
+        pred_prob = tf.sigmoid(y)
+        predictions = tf.to_int32(pred_prob>0.5)
 
     with tf.Session() as sess:
         init = tf.global_variables_initializer()
         sess.run(init)
-        v = sess.run(pred)
+        v = sess.run(predictions)
 
         print(v.shape)
         print(v[0])

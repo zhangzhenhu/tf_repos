@@ -171,7 +171,10 @@ def model_fn(features, labels, mode, params):
 
     # Provide an estimator spec for `ModeKeys.EVAL`
     eval_metric_ops = {
-        "auc": tf.metrics.auc(labels, pred)
+        "auc": tf.metrics.auc(labels, pred),
+        "rmse": tf.metrics.root_mean_squared_error(labels, pred),
+        'acc': tf.metrics.accuracy(labels, tf.to_int32(pred > 0.5)),
+
     }
     if mode == tf.estimator.ModeKeys.EVAL:
         return tf.estimator.EstimatorSpec(
