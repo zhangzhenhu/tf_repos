@@ -29,6 +29,7 @@ import random
 # import pandas as pd
 # import numpy as np
 import tensorflow as tf
+from tensorflow.python import debug as tf_debug
 
 #################### CMD Arguments ####################
 FLAGS = tf.app.flags.FLAGS
@@ -38,11 +39,11 @@ tf.app.flags.DEFINE_string("worker_hosts", '', "Comma-separated list of hostname
 tf.app.flags.DEFINE_string("job_name", '', "One of 'ps', 'worker'")
 tf.app.flags.DEFINE_integer("task_index", 0, "Index of task within the job")
 tf.app.flags.DEFINE_integer("num_threads", 16, "Number of threads")
-tf.app.flags.DEFINE_integer("feature_size", 0, "Number of features")
-tf.app.flags.DEFINE_integer("field_size", 0, "Number of fields")
+tf.app.flags.DEFINE_integer("feature_size", 117581, "Number of features")
+tf.app.flags.DEFINE_integer("field_size", 39, "Number of fields")
 tf.app.flags.DEFINE_integer("embedding_size", 32, "Embedding size")
-tf.app.flags.DEFINE_integer("num_epochs", 10, "Number of epochs")
-tf.app.flags.DEFINE_integer("batch_size", 64, "Number of batch size")
+tf.app.flags.DEFINE_integer("num_epochs", 1, "Number of epochs")
+tf.app.flags.DEFINE_integer("batch_size", 2048, "Number of batch size")
 tf.app.flags.DEFINE_integer("log_steps", 1000, "save summary every steps")
 tf.app.flags.DEFINE_float("learning_rate", 0.0005, "learning rate")
 tf.app.flags.DEFINE_float("l2_reg", 0.0001, "L2 regularization")
@@ -52,9 +53,9 @@ tf.app.flags.DEFINE_string("deep_layers", '256,128,64', "deep layers")
 tf.app.flags.DEFINE_string("dropout", '0.5,0.5,0.5', "dropout rate")
 tf.app.flags.DEFINE_boolean("batch_norm", False, "perform batch normaization (True or False)")
 tf.app.flags.DEFINE_float("batch_norm_decay", 0.9, "decay for the moving average(recommend trying decay=0.9)")
-tf.app.flags.DEFINE_string("data_dir", '', "data dir")
+tf.app.flags.DEFINE_string("data_dir", '../data/', "data dir")
 tf.app.flags.DEFINE_string("dt_dir", '', "data dt partition")
-tf.app.flags.DEFINE_string("model_dir", '', "model check point dir")
+tf.app.flags.DEFINE_string("model_dir", '../models/DeepFM', "model check point dir")
 tf.app.flags.DEFINE_string("servable_model_dir", '', "export servable model for TensorFlow Serving")
 tf.app.flags.DEFINE_string("task_type", 'train', "task type {train, infer, eval, export}")
 tf.app.flags.DEFINE_boolean("clear_existing_model", False, "clear existing model or not")
@@ -89,7 +90,8 @@ def input_fn(filenames, batch_size=32, num_epochs=1, perform_shuffle=False):
     # Randomizes input using a window of 256 elements (read into memory)
     if perform_shuffle:
         dataset = dataset.shuffle(buffer_size=256)
-
+    print(dataset.output_shapes)
+    print(dataset.output_types)
     # epochs from blending together.
     dataset = dataset.repeat(num_epochs)
     dataset = dataset.batch(batch_size)  # Batch size to use
@@ -301,7 +303,7 @@ def main(_):
     # ------check Arguments------
     if FLAGS.dt_dir == "":
         FLAGS.dt_dir = (date.today() + timedelta(-1)).strftime('%Y%m%d')
-    FLAGS.model_dir = FLAGS.model_dir + FLAGS.dt_dir
+    # FLAGS.model_dir = FLAGS.model_dir + FLAGS.dt_dir
     # FLAGS.data_dir  = FLAGS.data_dir + FLAGS.dt_dir
 
     print('task_type ', FLAGS.task_type)
@@ -357,9 +359,13 @@ def main(_):
         log_step_count_steps=FLAGS.log_steps, save_summary_steps=FLAGS.log_steps)
     DeepFM = tf.estimator.Estimator(model_fn=model_fn, model_dir=FLAGS.model_dir, params=model_params, config=config)
 
+    hooks = [tf_debug.TensorBoardDebugHook("zhangzhenhudeMacBook-Pro.local:6064")]
+
     if FLAGS.task_type == 'train':
         train_spec = tf.estimator.TrainSpec(
-            input_fn=lambda: input_fn(tr_files, num_epochs=FLAGS.num_epochs, batch_size=FLAGS.batch_size))
+            input_fn=lambda: input_fn(tr_files, num_epochs=FLAGS.num_epochs, batch_size=FLAGS.batch_size),
+            hooks=hooks
+        )
         eval_spec = tf.estimator.EvalSpec(
             input_fn=lambda: input_fn(va_files, num_epochs=1, batch_size=FLAGS.batch_size), steps=None,
             start_delay_secs=1000, throttle_secs=1200)
